@@ -1,4 +1,6 @@
 
+import json
+from client import connect_to_socket_server
 from cnn import CNN
 import torch
 from torchvision import datasets
@@ -29,18 +31,21 @@ def read_images(data_transforms):
     return train_data, validation_data, test_data
 
 if __name__ == '__main__':
-    data_transforms = define_transforms(224,224)
-    train_data, validation_data, test_data = read_images(data_transforms)
-    cnn = CNN(train_data, validation_data, test_data,8)
-#Esta é a parte do código que deve ser atualizada e distribuída
-    replicacoes = 10
-    model_names=['Alexnet']
-    epochs = [5] # train with 5 or 10 epochs
-    learning_rates = [0.001]
-    weight_decays = [0]
-    inicio = time.time()
-    acc_media, rep_max = cnn.create_and_train_cnn(model_names[0],epochs[0],learning_rates[0],weight_decays[0],replicacoes)
-    fim = time.time()
-    duracao = fim - inicio
-    print(f"{model_names[0]}-{epochs[0]}-{learning_rates[0]}-{weight_decays[0]}-Acurácia média: {acc_media} - Melhor replicação: {rep_max} - Tempo:{duracao}")
+    connect_to_socket_server()
+
+    # data_transforms = define_transforms(224,224)
+#     train_data, validation_data, test_data = read_images(data_transforms)
+#     cnn = CNN(train_data, validation_data, test_data,8)
+# #Esta é a parte do código que deve ser atualizada e distribuída
+#     replicacoes = 10
+#     model_names=['Alexnet']
+#     epochs = [10]
+#     learning_rates = [0.001]
+#     weight_decays = [0]
+#     inicio = time.time()
+#     acc_media, rep_max = cnn.create_and_train_cnn(model_names[0],epochs[0],learning_rates[0],weight_decays[0],replicacoes)
+#     fim = time.time()
+#     duracao = fim - inicio
+#     print(f"{model_names[0]}-{epochs[0]}-{learning_rates[0]}-{weight_decays[0]}-Acurácia média: {acc_media} - Melhor replicação: {rep_max} - Tempo:{duracao}")
+    
     
