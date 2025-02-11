@@ -17,3 +17,6 @@ class AIParameters:
         fim = time.time()
         duracao = fim - inicio
         return f"Treinamento finalizado por: {computer_id} {self.model_name}-{self.epoch}-{self.learning_rate}-{self.weight_decays}-Acurácia média: {acc_media} - Melhor replicação: {rep_max} - Tempo:{duracao}"
+    
+    def __str__(self):
+        return f"AIParameters: {self.model_name}-{self.epoch}-{self.learning_rate}-{self.weight_decays}"

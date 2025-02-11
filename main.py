@@ -9,14 +9,14 @@ from torchvision import datasets
 from torchvision.transforms import v2
 import time
 
-from coordinator.coordinator import Coordinator, get_ai_parameters_list
+from coordinator import *
 from multi_thread_trainer import MultiThreadTrainer
 from single_instance_trainer import add_ai_parameters, process_single_instance
 
 
-is_multiprocessing = False
+is_multiprocessing = True
 is_distributed = False
-is_coordinator = True
+is_coordinator = False
 
 def define_transforms(height, width):
     data_transforms = {
@@ -63,8 +63,8 @@ def get_ai_parameters_list():
 if __name__ == '__main__':
     if(is_distributed):
         if(is_coordinator):
-            coordinator = Coordinator()
-            coordinator.start_coordinator()
+            ai_coordinator = Coordinator()
+            ai_coordinator.start_coordinator()
         else:
             connect_to_socket_server()
         pass
