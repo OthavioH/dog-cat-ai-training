@@ -37,20 +37,18 @@ def read_images(data_transforms):
     return train_data, validation_data, test_data
 
 if __name__ == '__main__':
+    data_transforms = define_transforms(224,224)
+    train_data, validation_data, test_data = read_images(data_transforms)
+    cnn = CNN(train_data, validation_data, test_data,8)
     if(is_distributed):
         connect_to_socket_server()
         pass
     else:
         param_list = get_ai_parameters_list()
         add_ai_parameters(param_list)
-        process_single_instance(is_multiprocessing)
+        process_single_instance(is_multiprocessing, cnn)
         pass
-
-
-
-    # data_transforms = define_transforms(224,224)
-#     train_data, validation_data, test_data = read_images(data_transforms)
-#     cnn = CNN(train_data, validation_data, test_data,8)
+    
 # #Esta é a parte do código que deve ser atualizada e distribuída
 #     replicacoes = 10
 #     model_names=['Alexnet']
