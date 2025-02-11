@@ -1,5 +1,7 @@
 
+import itertools
 import json
+from ai_parameters import AIParameters
 from client import connect_to_socket_server
 from cnn import CNN
 import torch
@@ -37,6 +39,26 @@ def read_images(data_transforms):
     validation_data = datasets.ImageFolder('./data/resumido/validation/',transform=data_transforms['test'])
     test_data = datasets.ImageFolder('./data/resumido/test/',transform=data_transforms['test'])
     return train_data, validation_data, test_data
+
+def get_ai_parameters_list():
+        model_names = ['Alexnet', 'VGG11', 'MobilenetV3Large', 'MobilenetV3Small', 'Resnet18', 'Resnet101', 'VGG19'] 
+        epochs = [5, 10]
+        learning_rates = [0.001, 0.0001, 0.00001]
+        weight_decays = [0, 0.0001]
+
+        # Generate a ;ost with all combinations of parameters
+        param_combinations = list(itertools.product(model_names, epochs, learning_rates, weight_decays))
+        ai_parameters_list = []
+        for params in param_combinations:
+            json_data = {
+                'model_name': params[0],
+                'epoch': params[1],
+                'learning_rate': params[2],
+                'weight_decays': params[3]
+            }
+            ai_parameters_list.append(AIParameters(json_data))
+        
+        return ai_parameters_list
 
 if __name__ == '__main__':
     if(is_distributed):

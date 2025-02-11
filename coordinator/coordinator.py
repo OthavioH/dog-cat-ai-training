@@ -14,7 +14,6 @@ class Coordinator:
     param_queue: list[AIParameters] = []
     task_start_times = {}
 
-    # create an API with POST /train
     app = Flask(__name__)
     
     cnn: CNN = None
@@ -34,7 +33,6 @@ class Coordinator:
             print(f"Received {data} from {client_address}")
 
             json_data = json.loads(data)
-            # verify if the message is "action:connect"
             if json_data.get("action") == "connect":
                 if client_address not in self.clients_connected:
                     self.clients_connected[client_address] = conn
@@ -62,29 +60,6 @@ class Coordinator:
         self.openSocket(host, 27010)
         
         self.app.run(host='0.0.0.0', port=3000)
-
-    def get_ai_parameters_list():
-        model_names = ['Alexnet', 'VGG11', 'MobilenetV3Large', 'MobilenetV3Small', 'Resnet18', 'Resnet101', 'VGG19'] 
-        epochs = [5, 10]
-        learning_rates = [0.001, 0.0001, 0.00001]
-        weight_decays = [0, 0.0001]
-
-        # Generate all combinations of parameters
-        param_combinations = list(itertools.product(model_names, epochs, learning_rates, weight_decays))
-        # print(param_combinations)
-        # Create a list of AIParameters instances
-        # Create a list of AIParameters instances
-        ai_parameters_list = []
-        for params in param_combinations:
-            json_data = {
-                'model_name': params[0],
-                'epoch': params[1],
-                'learning_rate': params[2],
-                'weight_decays': params[3]
-            }
-            ai_parameters_list.append(AIParameters(json_data))
-        
-        return ai_parameters_list
 
     def distribute_tasks(self):
         clients_param_queues = { client: [] for client in self.clients_connected }
@@ -127,13 +102,8 @@ class Coordinator:
     def train(self):
         data = request.get_json()
 
-        # verify if data has the message "action:train"
         if data.get("action") != "train":
             return jsonify({"status": "invalid data"}), 400
-        # if data.get("isMultiprocessing") == True:
-        #     print("Multiprocessing")
-        # print(f"Training data received: {data}")
-        # return jsonify({"status": "training started"}), 200
         global param_queue
         param_queue = self.get_ai_parameters_list()
 

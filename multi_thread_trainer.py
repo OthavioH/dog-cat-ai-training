@@ -22,5 +22,5 @@ class MultiThreadTrainer:
         return results
     def process_ai_parameters(self,ai_params:AIParameters):
         result = ai_params.train_ai("MYSELF")
-        self.fila_processamento.remove(ai_params) # Remove parametro da lista
+        self.fila_processamento.remove(ai_params)
         return result
