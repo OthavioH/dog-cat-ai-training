@@ -7,12 +7,14 @@ from torchvision import datasets
 from torchvision.transforms import v2
 import time
 
-from coordinator.coordinator import get_ai_parameters_list
+from coordinator.coordinator import Coordinator, get_ai_parameters_list
+from multi_thread_trainer import MultiThreadTrainer
 from single_instance_trainer import add_ai_parameters, process_single_instance
 
 
 is_multiprocessing = False
 is_distributed = False
+is_coordinator = True
 
 def define_transforms(height, width):
     data_transforms = {
@@ -37,19 +39,33 @@ def read_images(data_transforms):
     return train_data, validation_data, test_data
 
 if __name__ == '__main__':
-    data_transforms = define_transforms(224,224)
-    train_data, validation_data, test_data = read_images(data_transforms)
-    cnn = CNN(train_data, validation_data, test_data,8)
     if(is_distributed):
-        connect_to_socket_server()
+        if(is_coordinator):
+            coordinator = Coordinator()
+            coordinator.start_coordinator()
+        else:
+            connect_to_socket_server()
         pass
+    elif is_multiprocessing:
+        data_transforms = define_transforms(224,224)
+        train_data, validation_data, test_data = read_images(data_transforms)
+        cnn = CNN(train_data, validation_data, test_data,8)
+        param_list = get_ai_parameters_list()
+        add_ai_parameters(param_list)
+        multi_thread_trainer = MultiThreadTrainer(param_list)
+        results = multi_thread_trainer.process(cnn)
+        with open('multi_thread_results.json', 'w') as json_file:
+            json.dump(results, json_file, indent=4)
     else:
+        data_transforms = define_transforms(224,224)
+        train_data, validation_data, test_data = read_images(data_transforms)
+        cnn = CNN(train_data, validation_data, test_data,8)
         results = {}
         param_list = get_ai_parameters_list()
         add_ai_parameters(param_list)
         single_instance_results = process_single_instance(is_multiprocessing, cnn)
         results["single_instance"] = single_instance_results
-        with open('results.json', 'w') as json_file:
+        with open('single_instance_results.json', 'w') as json_file:
             json.dump(results, json_file, indent=4)
         pass
     

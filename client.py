@@ -10,15 +10,21 @@ computer_id = "NOTE_UEEK"
 def connect_to_socket_server():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(('10.151.35.182', 27010))
+    json = {
+        "action": "connect",
+        "computer_id": computer_id
+    }
+    json_encoded = json.dumps(json)
+    client.send(json_encoded.encode('utf-8'))
     while True:
         # get data sent from server
         data = client.recv(1024).decode()
         if data:
             print(data)
             json_data = json.loads(data)
-            if(json_data.get('action') == 'start_processing_parameters'):
+            if(json_data.get('action') == 'process'):
                 client.close()
-                for json_ai_parameters in json_data.get('ai_parameters'):
+                for json_ai_parameters in json_data.get('params'):
                     ai_params = AIParameters(json_ai_parameters)
                     fila_processamento_parametros.append(ai_params)
                 with multiprocessing.Pool() as pool:
@@ -34,7 +40,7 @@ def send_result_to_server(result:str):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(('10.151.35.182', 27010))
     json_result = {
-        "action": "finished_processing_parameter",
+        "action": "finishedProcessing",
         "result": result
     }
     
