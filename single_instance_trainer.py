@@ -9,6 +9,9 @@ def add_ai_parameters(list: list[AIParameters]):
     fila_processamento.extend(list)
 
 def process_single_instance(is_multiprocessing: bool, cnn: CNN):
+    results = []
     for ai_params in fila_processamento:
         result = ai_params.train_ai("DESKTOP", cnn)
+        results.append(result)
         print(result)
+    return results
