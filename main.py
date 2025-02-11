@@ -40,18 +40,18 @@ if __name__ == '__main__':
     data_transforms = define_transforms(224,224)
     train_data, validation_data, test_data = read_images(data_transforms)
     cnn = CNN(train_data, validation_data, test_data,8)
-    results = {}
     if(is_distributed):
         connect_to_socket_server()
         pass
     else:
+        results = {}
         param_list = get_ai_parameters_list()
         add_ai_parameters(param_list)
         single_instance_results = process_single_instance(is_multiprocessing, cnn)
         results["single_instance"] = single_instance_results
+        with open('results.json', 'w') as json_file:
+            json.dump(results, json_file, indent=4)
         pass
-    with open('results.json', 'w') as json_file:
-        json.dump(results, json_file, indent=4)
     
 # #Esta é a parte do código que deve ser atualizada e distribuída
 #     replicacoes = 10
