@@ -7,6 +7,12 @@ from torchvision import datasets
 from torchvision.transforms import v2
 import time
 
+from coordinator.coordinator import get_ai_parameters_list
+from single_instance_trainer import add_ai_parameters, process_single_instance
+
+
+is_multiprocessing = False
+is_distributed = False
 
 def define_transforms(height, width):
     data_transforms = {
@@ -31,7 +37,16 @@ def read_images(data_transforms):
     return train_data, validation_data, test_data
 
 if __name__ == '__main__':
-    connect_to_socket_server()
+    if(is_distributed):
+        connect_to_socket_server()
+        pass
+    else:
+        param_list = get_ai_parameters_list()
+        add_ai_parameters(param_list)
+        process_single_instance(is_multiprocessing)
+        pass
+
+
 
     # data_transforms = define_transforms(224,224)
 #     train_data, validation_data, test_data = read_images(data_transforms)
@@ -47,5 +62,3 @@ if __name__ == '__main__':
 #     fim = time.time()
 #     duracao = fim - inicio
 #     print(f"{model_names[0]}-{epochs[0]}-{learning_rates[0]}-{weight_decays[0]}-Acurácia média: {acc_media} - Melhor replicação: {rep_max} - Tempo:{duracao}")
-    
-    
