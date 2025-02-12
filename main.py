@@ -14,9 +14,9 @@ from multi_thread_trainer import MultiThreadTrainer
 from single_instance_trainer import add_ai_parameters, process_single_instance
 
 
-is_multiprocessing = True
-is_distributed = False
-is_coordinator = False
+is_multiprocessing = False
+is_distributed = True
+is_coordinator = True
 
 def define_transforms(height, width):
     data_transforms = {
@@ -63,7 +63,10 @@ def get_ai_parameters_list():
 if __name__ == '__main__':
     if(is_distributed):
         if(is_coordinator):
-            ai_coordinator = Coordinator()
+            data_transforms = define_transforms(224,224)
+            train_data, validation_data, test_data = read_images(data_transforms)
+            cnn = CNN(train_data, validation_data, test_data,8)
+            ai_coordinator = Coordinator(cnn)
             ai_coordinator.start_coordinator()
         else:
             connect_to_socket_server()

@@ -6,7 +6,6 @@ from flask import Flask, request, jsonify
 
 from ai_parameters import AIParameters
 from cnn import CNN
-from main import define_transforms, read_images
 from multi_thread_trainer import MultiThreadTrainer
 
 class Coordinator:
@@ -18,13 +17,11 @@ class Coordinator:
     
     cnn: CNN = None
     
-    def __init__(self):
+    def __init__(self, cnn:CNN):
         self.clients_connected = {
             "myself": "localhost",
         }
-        data_transforms = define_transforms(224,224)
-        train_data, validation_data, test_data = read_images(data_transforms)
-        self.cnn = CNN(train_data, validation_data, test_data,8)
+        self.cnn = cnn
 
     def handle_client(self,conn):
         data = conn.recv(1024).decode()
@@ -50,7 +47,7 @@ class Coordinator:
 
         server.listen(5)
 
-        print(f"Coordinator listening on {host}")
+        print(f"Coordinator listening on {host}:{socketPort}")
 
         while True:
             conn, _ = server.accept()
