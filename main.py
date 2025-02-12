@@ -9,7 +9,7 @@ from torchvision import datasets
 from torchvision.transforms import v2
 import time
 
-from coordinator import *
+from coordinator import Coordinator
 from multi_thread_trainer import MultiThreadTrainer
 from single_instance_trainer import add_ai_parameters, process_single_instance
 

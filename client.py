@@ -6,10 +6,11 @@ from ai_parameters import AIParameters
 
 fila_processamento_parametros: list[AIParameters] = []
 computer_id = "NOTE_UEEK"
+server_address = "192.168.3.3"
 
 def connect_to_socket_server():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect(('10.151.35.182', 27010))
+    client.connect((server_address, 27010))
     json = {
         "action": "connect",
         "computer_id": computer_id
@@ -38,7 +39,7 @@ def process_ai_parameters(ai_params:AIParameters):
             
 def send_result_to_server(result:str):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect(('10.151.35.182', 27010))
+    client.connect((server_address, 27010))
     json_result = {
         "action": "finishedProcessing",
         "result": result
