@@ -1,6 +1,7 @@
 import itertools
 import socket
 import json
+import threading
 import time
 from flask import Flask, request, jsonify
 
@@ -17,10 +18,11 @@ class Coordinator:
     
     cnn: CNN = None
     
-    def __init__(self, cnn:CNN):
+    def __init__(self, cnn:CNN, param_list: list[AIParameters]):
         self.clients_connected = {
             "myself": "localhost",
         }
+        self.param_queue = param_list
         self.cnn = cnn
 
     def handle_client(self,conn):
@@ -54,15 +56,32 @@ class Coordinator:
             self.handle_client(conn)
 
     def start_coordinator(self,host='0.0.0.0'):
+        @self.app.route('/train', methods=['POST'])
+        def train():
+            json_data = request.get_data(as_text=True)
+            print(f"Received data: {json_data}")
+            data = json.loads(json_data)
+
+            if data.get("action") != "train":
+                return jsonify({"status": "invalid data"}), 400
+
+            self.distribute_tasks()
+
+        def run_flask():
+            self.app.run(host=host, port=3000)
+            print("Coordinator API running on port 3000")
+        
+        flask_thread = threading.Thread(target=run_flask)
+        flask_thread.start()
+        
         self.openSocket(host, 27010)
         
-        self.app.run(host='0.0.0.0', port=3000)
 
     def distribute_tasks(self):
         clients_param_queues = { client: [] for client in self.clients_connected }
-        while param_queue:
+        while self.param_queue:
             for client in self.clients_connected:
-                params = param_queue.pop(0)
+                params = self.param_queue.pop(0)
                 clients_param_queues[client].append(params)
         for client, params in clients_param_queues.items():
             if client == "myself":
@@ -75,12 +94,14 @@ class Coordinator:
         multi_thread_trainer = MultiThreadTrainer(params)
         multi_thread_trainer.process(cnn=self.cnn,must_save_results=True)
 
-    def send_task_to_client(self,client, params):
+    def send_task_to_client(self,client, params:list[AIParameters]):
         try:
             print(f"Sending {params} to {client}")
             self.task_start_times[client] = time.time()
             client_conn = self.clients_connected[client]
-            client_conn.send(json.dumps({"action": "process","params": params}).encode())
+            client_conn.send(json.dumps({"action": "process","params": [
+                param.to_json() for param in params
+            ]}).encode())
         except Exception as e:
             print(f"Error sending task to client {client}: {e}")
         
@@ -94,14 +115,3 @@ class Coordinator:
         with open('distributed_results.json', 'a') as f:
             json.dump(data, f)
             f.write('\n')
-
-    @app.route('/train', methods=['POST'])
-    def train(self):
-        data = request.get_json()
-
-        if data.get("action") != "train":
-            return jsonify({"status": "invalid data"}), 400
-        global param_queue
-        param_queue = self.get_ai_parameters_list()
-
-        self.distribute_tasks()

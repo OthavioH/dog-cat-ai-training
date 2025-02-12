@@ -20,3 +20,11 @@ class AIParameters:
     
     def __str__(self):
         return f"AIParameters: {self.model_name}-{self.epoch}-{self.learning_rate}-{self.weight_decays}"
+    
+    def to_json(self):
+        return {
+            'model_name': self.model_name,
+            'epoch': self.epoch,
+            'learning_rate': self.learning_rate,
+            'weight_decays': self.weight_decays
+        }

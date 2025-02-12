@@ -66,7 +66,8 @@ if __name__ == '__main__':
             data_transforms = define_transforms(224,224)
             train_data, validation_data, test_data = read_images(data_transforms)
             cnn = CNN(train_data, validation_data, test_data,8)
-            ai_coordinator = Coordinator(cnn)
+            param_list = get_ai_parameters_list()
+            ai_coordinator = Coordinator(cnn, param_list)
             ai_coordinator.start_coordinator()
         else:
             connect_to_socket_server()
